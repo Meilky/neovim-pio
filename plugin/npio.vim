@@ -1,8 +1,8 @@
-noremap <C-p> :call Npio<CR>
+noremap <C-p> Npio<CR>
 
-command Npio :call npio#NPIO('./neovim-pio.py')<CR>
+command Npio :call NPIO('neovim-pio.py')<CR>
 
-function! npio#NPIO(file)
+function! NPIO(file)
 	:vsplit
 	:term pwd 
 	:normal i
