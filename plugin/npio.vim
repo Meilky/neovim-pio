@@ -4,6 +4,6 @@ command! Npio :call NPIO('neovim-pio.py')<CR>
 
 function! NPIO(filePath)
 	vsplit
-	execute "python3 " + string(a:filePath) 
+	term python3 string(file)
 	normal i
 endfunction
