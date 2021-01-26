@@ -1,4 +1,4 @@
-nmap <C-p> :Npio<CR>
+noremap <C-p> :echo "hello world"<CR>
 
 command Npio :call npio#NPIO('./neovim-pio.py')<CR>
 
