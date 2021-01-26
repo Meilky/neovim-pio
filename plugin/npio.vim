@@ -1,9 +1,9 @@
-noremap <C-p> :echo "hello world"<CR>
+noremap <C-p> :call Npio<CR>
 
 command Npio :call npio#NPIO('./neovim-pio.py')<CR>
 
 function! npio#NPIO(file)
 	:vsplit
-	:term python3 file 
+	:term pwd 
 	:normal i
 endfunction
