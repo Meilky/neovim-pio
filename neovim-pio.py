@@ -16,6 +16,7 @@ class PioMenu:
     def MainMenu(self):
         print("Your options :")
         print("")
+        print("")
 
 wrap = PioWrapper("platformio.ini")
 menu = PioMenu(wrap)
