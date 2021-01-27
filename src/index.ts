@@ -1,144 +1,16 @@
 import { CMenu } from "./Classes/Menu";
+import child_process from "child_process";
 
 const MainMenu = new CMenu("Main menu", [
 	{
-		name: "bro",
-		description: "set command",
+		name: "Upload and monitor",
 		handler: () => {
-			return 1;
+			child_process.execSync("pio run", { stdio: "inherit" });
+			MainMenu.render();
 		},
 	},
 	{
-		name: "let lksjflkd kdjfk",
-		description: "exit the menu",
-		handler: () => {
-			process.exit();
-		},
-	},
-
-	{
-		name: "bro",
-		description: "set command",
-		handler: () => {
-			return 1;
-		},
-	},
-	{
-		name: "let lksjflkd kdjfk",
-		description: "exit the menu",
-		handler: () => {
-			process.exit();
-		},
-	},
-	{
-		name: "bro",
-		description: "set command",
-		handler: () => {
-			return 1;
-		},
-	},
-	{
-		name: "let lksjflkd kdjfk",
-		description: "exit the menu",
-		handler: () => {
-			process.exit();
-		},
-	},
-	{
-		name: "bro",
-		description: "set command",
-		handler: () => {
-			return 1;
-		},
-	},
-	{
-		name: "let lksjflkd kdjfk",
-		description: "exit the menu",
-		handler: () => {
-			process.exit();
-		},
-	},
-	{
-		name: "bro",
-		description: "set command",
-		handler: () => {
-			return 1;
-		},
-	},
-	{
-		name: "let lksjflkd kdjfk",
-		description: "exit the menu",
-		handler: () => {
-			process.exit();
-		},
-	},
-	{
-		name: "bro",
-		description: "set command",
-		handler: () => {
-			return 1;
-		},
-	},
-	{
-		name: "let lksjflkd kdjfk",
-		description: "exit the menu",
-		handler: () => {
-			process.exit();
-		},
-	},
-	{
-		name: "bro",
-		description: "set command",
-		handler: () => {
-			return 1;
-		},
-	},
-	{
-		name: "let lksjflkd kdjfk",
-		description: "exit the menu",
-		handler: () => {
-			process.exit();
-		},
-	},
-	{
-		name: "bro",
-		description: "set command",
-		handler: () => {
-			return 1;
-		},
-	},
-	{
-		name: "let lksjflkd kdjfk",
-		description: "exit the menu",
-		handler: () => {
-			process.exit();
-		},
-	},
-	{
-		name: "bro",
-		description: "set command",
-		handler: () => {
-			return 1;
-		},
-	},
-	{
-		name: "let lksjflkd kdjfk",
-		description: "exit the menu",
-		handler: () => {
-			process.exit();
-		},
-	},
-
-	{
-		name: "bro",
-		description: "set command",
-		handler: () => {
-			return 1;
-		},
-	},
-	{
-		name: "let lksjflkd kdjfk",
-		description: "exit the menu",
+		name: "exit",
 		handler: () => {
 			process.exit();
 		},
@@ -146,3 +18,5 @@ const MainMenu = new CMenu("Main menu", [
 ]);
 
 MainMenu.render();
+
+MainMenu.read();

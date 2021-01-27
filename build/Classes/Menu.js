@@ -26,9 +26,20 @@ var CMenu = /** @class */ (function (_super) {
         _this.rl = readline_1.default.createInterface({ input: process.stdin, output: process.stdout });
         return _this;
     }
-    CMenu.prototype.read = function () { };
-    CMenu.prototype.executer = function () {
-        return 1;
+    CMenu.prototype.read = function () {
+        var _this = this;
+        this.rl.question("Your choice : ", function (answer) {
+            var num = Number.parseInt(answer);
+            if (num === 0)
+                _this.options[_this.options.length - 1].handler();
+            else if (num > 0 && num <= _this.options.length)
+                _this.options[num - 1].handler();
+            else {
+                _this.render();
+                console.log(answer, "is not a option");
+                _this.read();
+            }
+        });
     };
     return CMenu;
 }(Table_1.CTable));

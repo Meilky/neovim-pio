@@ -28,6 +28,8 @@ export class CTable {
 		middle: " │ ",
 	};
 
+	protected renderedString: string = "";
+
 	protected name: string;
 	protected options: IOption[];
 
@@ -73,28 +75,40 @@ export class CTable {
 	}
 
 	public render(): void {
-		this.renderTop();
-		this.renderMiddle();
-		this.renderBottom();
+		if (this.renderedString) console.log(this.renderedString);
+		else {
+			this.renderTop();
+			this.renderMiddle();
+			this.renderBottom();
 
-		this.top.map((t, id) => {
-			console.log(t.join(""));
-		});
+			this.top.map((t, id) => {
+				this.renderedString += t.join("") + "\n";
+			});
 
-		this.middle.map((m, id) => {
-			console.log(m.join(""));
-		});
+			this.middle.map((m, id) => {
+				this.renderedString += m.join("") + "\n";
+			});
 
-		this.bottom.map((b, id) => {
-			console.log(b.join(""));
-		});
+			this.bottom.map((b, id) => {
+				this.renderedString += b.join("") + "\n";
+			});
+
+			console.log(this.renderedString);
+		}
 	}
 
 	protected renderMiddle(): void {
 		this.options.map((option: IOption, id: number) => {
-			this.middle[id] = [this.tableChars.left, (id + 1).toString()];
-			for (let i = 0; i < this.idColMaxWidth - (id + 1).toString().length; i++) {
-				this.middle[id].push(" ");
+			if (id + 1 === this.options.length) {
+				this.middle[id] = [this.tableChars.left, (0).toString()];
+				for (let i = 0; i < this.idColMaxWidth - (0).toString().length; i++) {
+					this.middle[id].push(" ");
+				}
+			} else {
+				this.middle[id] = [this.tableChars.left, (id + 1).toString()];
+				for (let i = 0; i < this.idColMaxWidth - (id + 1).toString().length; i++) {
+					this.middle[id].push(" ");
+				}
 			}
 
 			this.middle[id].push(this.tableChars.middle, option.name);

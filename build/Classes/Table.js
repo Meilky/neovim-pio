@@ -27,6 +27,7 @@ var CTable = /** @class */ (function () {
             right: " |",
             middle: " │ ",
         };
+        this.renderedString = "";
         this.idColMaxWidth = 0;
         this.nameColMaxWidth = 0;
         this.width = 0;
@@ -62,25 +63,39 @@ var CTable = /** @class */ (function () {
             this.width = rowLength;
     };
     CTable.prototype.render = function () {
-        this.renderTop();
-        this.renderMiddle();
-        this.renderBottom();
-        this.top.map(function (t, id) {
-            console.log(t.join(""));
-        });
-        this.middle.map(function (m, id) {
-            console.log(m.join(""));
-        });
-        this.bottom.map(function (b, id) {
-            console.log(b.join(""));
-        });
+        var _this = this;
+        if (this.renderedString)
+            console.log(this.renderedString);
+        else {
+            this.renderTop();
+            this.renderMiddle();
+            this.renderBottom();
+            this.top.map(function (t, id) {
+                _this.renderedString += t.join("") + "\n";
+            });
+            this.middle.map(function (m, id) {
+                _this.renderedString += m.join("") + "\n";
+            });
+            this.bottom.map(function (b, id) {
+                _this.renderedString += b.join("") + "\n";
+            });
+            console.log(this.renderedString);
+        }
     };
     CTable.prototype.renderMiddle = function () {
         var _this = this;
         this.options.map(function (option, id) {
-            _this.middle[id] = [_this.tableChars.left, (id + 1).toString()];
-            for (var i = 0; i < _this.idColMaxWidth - (id + 1).toString().length; i++) {
-                _this.middle[id].push(" ");
+            if (id + 1 === _this.options.length) {
+                _this.middle[id] = [_this.tableChars.left, (0).toString()];
+                for (var i = 0; i < _this.idColMaxWidth - (0).toString().length; i++) {
+                    _this.middle[id].push(" ");
+                }
+            }
+            else {
+                _this.middle[id] = [_this.tableChars.left, (id + 1).toString()];
+                for (var i = 0; i < _this.idColMaxWidth - (id + 1).toString().length; i++) {
+                    _this.middle[id].push(" ");
+                }
             }
             _this.middle[id].push(_this.tableChars.middle, option.name);
             for (var i = 0; i <=
