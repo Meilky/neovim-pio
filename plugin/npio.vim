@@ -1,11 +1,11 @@
 noremap <C-p>Npio<CR>
 
-command! Npio :call NPIO('neovim-pio.py')<CR>
+command! Npio :call NPIO('../build/index.js')<CR>
 
 let s:plugindir = expand('<sfile>:p:h:h')
 
 function! NPIO(filePath)
 	vsplit
-	execute "term python3"." ".s:plugindir."/".a:filePath
+	execute "term node "." ".s:plugindir."/".a:filePath
 	normal i
 endfunction
