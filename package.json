@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"build": "tsc",
+		"build": "if [ -d \"build\" ]; then rm -r build; fi; tsc",
 		"test": "npm run build && npm start",
 		"start": "node build/index.js"
 	},

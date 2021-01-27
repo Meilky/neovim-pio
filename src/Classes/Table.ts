@@ -70,8 +70,6 @@ export class CTable {
 
 		if (titleLength >= rowLength) this.width = titleLength;
 		else this.width = rowLength;
-
-		console.log(titleLength, rowLength);
 	}
 
 	public render(): void {
@@ -120,28 +118,23 @@ export class CTable {
 	protected renderBottom(): void {
 		this.bottom[0] = this.top[2];
 
-		console.log(this.bottom[0]);
-
 		this.bottom[0] = this.bottom[0]
 			.join("")
 			.split(this.tableChars.leftMiddle)
 			.join(this.tableChars.bottomLeft)
 			.split("");
-		console.log(this.bottom[0]);
 
 		this.bottom[0] = this.bottom[0]
 			.join("")
 			.split(this.tableChars.rightMiddle)
 			.join(this.tableChars.bottomRight)
 			.split("");
-		console.log(this.bottom[0]);
 
 		this.bottom[0] = this.bottom[0]
 			.join("")
 			.split(this.tableChars.topMiddle)
 			.join(this.tableChars.bottomMiddle)
 			.split("");
-		console.log(this.bottom[0]);
 	}
 
 	protected renderTop(): void {
