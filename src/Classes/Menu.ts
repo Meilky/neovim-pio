@@ -1,13 +1,13 @@
 import readline from "readline";
 import { CTable } from "./Table";
-import { IOption } from "./../Interfaces/Menu";
+import { IMenuOption, IOption } from "./../Interfaces/Menu";
 
 export class CMenu extends CTable {
 	protected rl: readline.Interface;
 
-	constructor(name: string, options: IOption[]) {
+	constructor({ name, readline, options }: IOption) {
 		super(name, options);
-		this.rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+		this.rl = readline;
 	}
 
 	public read(): void {

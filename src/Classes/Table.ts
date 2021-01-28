@@ -1,5 +1,5 @@
 import { ITableChars } from "./../Interfaces/Table";
-import { IOption } from "./../Interfaces/Menu";
+import { IMenuOption } from "./../Interfaces/Menu";
 
 export class CTable {
 	/*
@@ -31,7 +31,7 @@ export class CTable {
 	protected renderedString: string = "";
 
 	protected name: string;
-	protected options: IOption[];
+	protected options: IMenuOption[];
 
 	protected idColMaxWidth: number = 0;
 	protected nameColMaxWidth: number = 0;
@@ -42,7 +42,7 @@ export class CTable {
 	protected middle: string[][] = [];
 	protected bottom: string[][] = [];
 
-	constructor(name: string, options: IOption[]) {
+	constructor(name: string, options: IMenuOption[]) {
 		this.name = name;
 		this.options = options;
 
@@ -53,7 +53,7 @@ export class CTable {
 	 * Calculate everything for the table
 	 */
 	private calculate(): void {
-		this.options.map((option: IOption, id: number) => {
+		this.options.map((option: IMenuOption, id: number) => {
 			let nameLength = option.name.length;
 			let idLength = (id++).toString().length;
 
