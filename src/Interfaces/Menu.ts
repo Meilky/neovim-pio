@@ -1,12 +1,18 @@
 import readline from "readline";
 
-export interface IMenuOption {
+export interface IRowOption {
 	name: string;
+	description: string;
 	handler: Function;
 }
 
 export interface IOption {
 	name: string;
 	readline: readline.Interface;
-	options: IMenuOption[];
+	options: IRowOption[];
+}
+
+export interface IMenu {
+	render(table: "main" | "help"): void;
+	read(): void;
 }

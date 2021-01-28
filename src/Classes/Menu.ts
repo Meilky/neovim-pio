@@ -1,13 +1,20 @@
 import readline from "readline";
-import { CTable } from "./Table";
-import { IMenuOption, IOption } from "./../Interfaces/Menu";
+import { Table } from "./Table";
+import { IMenu, IOption, IRowOption } from "./../Interfaces/Menu";
 
-export class CMenu extends CTable {
+export class Menu implements IMenu {
 	protected rl: readline.Interface;
+	protected table: Table;
+	protected options: IRowOption[];
 
 	constructor({ name, readline, options }: IOption) {
-		super(name, options);
+		this.table = new Table({ title: name, options: options });
 		this.rl = readline;
+		this.options = options;
+	}
+
+	public render(table: "main" | "help"): void {
+		console.log(this.table.getTable(table));
 	}
 
 	public read(): void {
@@ -17,7 +24,7 @@ export class CMenu extends CTable {
 			if (num === 0) this.options[this.options.length - 1].handler();
 			else if (num > 0 && num <= this.options.length) this.options[num - 1].handler();
 			else {
-				this.render();
+				this.render("main");
 				console.log(answer, "is not a option");
 				this.read();
 			}

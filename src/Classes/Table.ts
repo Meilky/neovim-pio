@@ -1,7 +1,8 @@
-import { ITableChars } from "./../Interfaces/Table";
-import { IMenuOption } from "./../Interfaces/Menu";
+import { ITableChars, ITable, IOption } from "./../Interfaces/Table";
+import { IRowOption } from "./../Interfaces/Menu";
+import Colors from "./Colors";
 
-export class CTable {
+export class Table implements ITable {
 	/*
 	 * ┌───────────┐
 	 * │ Main menu │
@@ -12,7 +13,7 @@ export class CTable {
 	 * └───┴───────┘
 	 */
 
-	protected tableChars: ITableChars = {
+	chars: ITableChars = {
 		middleMiddle: "─",
 		rowMiddle: "┼",
 		topRight: "┐",
@@ -28,161 +29,173 @@ export class CTable {
 		middle: " │ ",
 	};
 
-	protected renderedString: string = "";
+	title: string;
+	options: IRowOption[];
 
-	protected name: string;
-	protected options: IMenuOption[];
+	protected idColMaxWidth: number;
+	protected nameColMaxWidth: number;
+	protected descColMaxWidth: number;
 
-	protected idColMaxWidth: number = 0;
-	protected nameColMaxWidth: number = 0;
+	protected widthMain: number;
+	protected widthHelp: number;
 
-	protected width: number = 0;
+	protected renderedMainTable: string;
+	protected renderedHelpTable: string;
 
-	protected top: string[][] = [];
-	protected middle: string[][] = [];
-	protected bottom: string[][] = [];
+	constructor({ title, options }: IOption) {
+		this.title = title;
 
-	constructor(name: string, options: IMenuOption[]) {
-		this.name = name;
 		this.options = options;
 
+		this.idColMaxWidth = 0;
+		this.nameColMaxWidth = 0;
+		this.descColMaxWidth = 0;
+
+		this.renderedMainTable = "";
+		this.renderedHelpTable = "";
+
+		this.widthMain = 0;
+		this.widthHelp = 0;
+
 		this.calculate();
+		this.renderMainTable();
+		this.renderHelpTable();
 	}
 
-	/*
-	 * Calculate everything for the table
-	 */
 	private calculate(): void {
-		this.options.map((option: IMenuOption, id: number) => {
+		this.options.map((option: IRowOption, id: number) => {
 			let nameLength = option.name.length;
 			let idLength = (id++).toString().length;
+			let descLength = option.description.length;
 
 			if (this.idColMaxWidth < idLength) this.idColMaxWidth = idLength;
 			if (this.nameColMaxWidth < nameLength) this.nameColMaxWidth = nameLength;
+			if (this.descColMaxWidth < descLength) this.descColMaxWidth = descLength;
 		});
 
-		let titleLength =
-			this.tableChars.left.length + this.tableChars.right.length + this.name.length;
-		let rowLength =
-			this.tableChars.left.length +
-			this.tableChars.right.length +
-			this.tableChars.middle.length +
+		let titleLength = this.chars.left.length + this.chars.right.length + this.title.length;
+
+		let rowMainLength =
+			this.chars.left.length +
+			this.idColMaxWidth +
+			this.chars.middle.length +
 			this.nameColMaxWidth +
-			this.idColMaxWidth;
+			this.chars.right.length;
 
-		if (titleLength >= rowLength) this.width = titleLength;
-		else this.width = rowLength;
+		let rowHelpLength =
+			this.chars.left.length +
+			this.idColMaxWidth +
+			this.chars.middle.length +
+			this.descColMaxWidth +
+			this.chars.right.length;
+
+		if (titleLength >= rowMainLength) this.widthMain = titleLength;
+		else this.widthMain = rowMainLength;
+
+		if (titleLength >= rowHelpLength) this.widthHelp = titleLength;
+		else this.widthHelp = rowHelpLength;
 	}
 
-	public render(): void {
-		if (this.renderedString) console.log(this.renderedString);
-		else {
-			this.renderTop();
-			this.renderMiddle();
-			this.renderBottom();
+	protected renderMainTable(): void {
+		let rows: string[] = [];
+		let lastRow: number = 0;
 
-			this.top.map((t, id) => {
-				this.renderedString += t.join("") + "\n";
-			});
+		rows[0] = this.chars.topLeft;
+		rows[0] += this.chars.middleMiddle.repeat(
+			this.widthMain - (this.chars.topLeft.length + this.chars.topRight.length),
+		);
+		rows[0] += this.chars.topRight;
+		rows[0] = Colors.red({ str: rows[0], bright: true });
 
-			this.middle.map((m, id) => {
-				this.renderedString += m.join("") + "\n";
-			});
+		rows[1] = Colors.red({ str: this.chars.left, bright: true });
+		rows[1] += Colors.green({ str: this.title, bright: true });
+		rows[1] += " ".repeat(
+			this.widthMain - (this.chars.left.length + this.title.length + this.chars.right.length),
+		);
+		rows[1] += Colors.red({ str: this.chars.right, bright: true });
 
-			this.bottom.map((b, id) => {
-				this.renderedString += b.join("") + "\n";
-			});
+		rows[2] = this.chars.leftMiddle;
+		rows[2] += this.chars.middleMiddle.repeat(
+			this.chars.leftMiddle.length + this.idColMaxWidth + 1,
+		);
+		rows[2] += this.chars.topMiddle;
+		rows[2] += this.chars.middleMiddle.repeat(
+			1 + this.nameColMaxWidth + this.chars.rightMiddle.length,
+		);
+		rows[2] += this.chars.rightMiddle;
+		rows[2] = Colors.red({ str: rows[2], bright: true });
 
-			console.log(this.renderedString);
-		}
-	}
+		this.options.map((option: IRowOption, id: number) => {
+			rows[id + 3] = Colors.red({ str: this.chars.left, bright: true });
+			rows[id + 3] += Colors.cyan({ str: (id + 1).toString(), bright: true });
+			rows[id + 3] += " ".repeat(this.idColMaxWidth - (id + 1).toString().length);
+			rows[id + 3] += Colors.red({ str: this.chars.middle, bright: true });
+			rows[id + 3] += Colors.magenta({ str: option.name, bright: true });
+			rows[id + 3] += " ".repeat(this.nameColMaxWidth - option.name.length);
+			rows[id + 3] += Colors.red({ str: this.chars.right, bright: true });
 
-	protected renderMiddle(): void {
-		this.options.map((option: IOption, id: number) => {
-			if (id + 1 === this.options.length) {
-				this.middle[id] = [this.tableChars.left, (0).toString()];
-				for (let i = 0; i < this.idColMaxWidth - (0).toString().length; i++) {
-					this.middle[id].push(" ");
-				}
-			} else {
-				this.middle[id] = [this.tableChars.left, (id + 1).toString()];
-				for (let i = 0; i < this.idColMaxWidth - (id + 1).toString().length; i++) {
-					this.middle[id].push(" ");
-				}
-			}
-
-			this.middle[id].push(this.tableChars.middle, option.name);
-			for (
-				let i = 0;
-				i <=
-				this.width -
-					(this.idColMaxWidth +
-						option.name.length +
-						this.tableChars.middle.length +
-						this.tableChars.left.length +
-						this.tableChars.right.length);
-				i++
-			) {
-				this.middle[id].push(" ");
-			}
-			this.middle[id].push(this.tableChars.right);
+			lastRow = id + 3;
 		});
+
+		rows[lastRow] = rows[2].replace(this.chars.topMiddle, this.chars.bottomMiddle);
+		rows[lastRow] = rows[lastRow].replace(this.chars.leftMiddle, this.chars.bottomLeft);
+		rows[lastRow] = rows[lastRow].replace(this.chars.rightMiddle, this.chars.bottomRight);
+		rows[lastRow] = Colors.red({ str: rows[lastRow], bright: true });
+
+		this.renderedMainTable = rows.join("\n");
 	}
 
-	protected renderBottom(): void {
-		this.bottom[0] = this.top[2];
+	protected renderHelpTable(): void {
+		let rows: string[] = [];
+		let lastRow: number = 0;
 
-		this.bottom[0] = this.bottom[0]
-			.join("")
-			.split(this.tableChars.leftMiddle)
-			.join(this.tableChars.bottomLeft)
-			.split("");
+		rows[0] = this.chars.topLeft;
+		rows[0] += this.chars.middleMiddle.repeat(
+			this.widthHelp - (this.chars.topLeft.length + this.chars.topRight.length),
+		);
+		rows[0] += this.chars.topRight;
+		rows[0] = Colors.red({ str: rows[0], bright: true });
 
-		this.bottom[0] = this.bottom[0]
-			.join("")
-			.split(this.tableChars.rightMiddle)
-			.join(this.tableChars.bottomRight)
-			.split("");
+		rows[1] = Colors.red({ str: this.chars.left, bright: true });
+		rows[1] += Colors.green({ str: this.title, bright: true });
+		rows[1] += " ".repeat(
+			this.widthHelp - (this.chars.left.length + this.title.length + this.chars.right.length),
+		);
+		rows[1] += Colors.red({ str: this.chars.right, bright: true });
 
-		this.bottom[0] = this.bottom[0]
-			.join("")
-			.split(this.tableChars.topMiddle)
-			.join(this.tableChars.bottomMiddle)
-			.split("");
+		rows[2] = this.chars.leftMiddle;
+		rows[2] += this.chars.middleMiddle.repeat(
+			this.chars.leftMiddle.length + this.idColMaxWidth + 1,
+		);
+		rows[2] += this.chars.topMiddle;
+		rows[2] += this.chars.middleMiddle.repeat(
+			1 + this.descColMaxWidth + this.chars.rightMiddle.length,
+		);
+		rows[2] += this.chars.rightMiddle;
+		rows[2] = Colors.red({ str: rows[2], bright: true });
+
+		this.options.map((option: IRowOption, id: number) => {
+			rows[id + 3] = Colors.red({ str: this.chars.left, bright: true });
+			rows[id + 3] += Colors.cyan({ str: (id + 1).toString(), bright: true });
+			rows[id + 3] += " ".repeat(this.idColMaxWidth - (id + 1).toString().length);
+			rows[id + 3] += Colors.red({ str: this.chars.middle, bright: true });
+			rows[id + 3] += Colors.magenta({ str: option.description, bright: true });
+			rows[id + 3] += " ".repeat(this.descColMaxWidth - option.description.length);
+			rows[id + 3] += Colors.red({ str: this.chars.right, bright: true });
+
+			lastRow = id + 3;
+		});
+
+		rows[lastRow] = rows[2].replace(this.chars.topMiddle, this.chars.bottomMiddle);
+		rows[lastRow] = rows[lastRow].replace(this.chars.leftMiddle, this.chars.bottomLeft);
+		rows[lastRow] = rows[lastRow].replace(this.chars.rightMiddle, this.chars.bottomRight);
+		rows[lastRow] = Colors.red({ str: rows[lastRow], bright: true });
+
+		this.renderedHelpTable = rows.join("\n");
 	}
 
-	protected renderTop(): void {
-		this.top[0] = [this.tableChars.topLeft];
-		this.top[1] = [this.tableChars.left, this.name];
-		this.top[2] = [this.tableChars.leftMiddle];
-
-		for (let i = 0; i <= this.width; i++) {
-			if (
-				i <=
-				this.width - (this.tableChars.topLeft.length + this.tableChars.topRight.length)
-			) {
-				this.top[0].push(this.tableChars.middleMiddle);
-			}
-
-			if (
-				i <=
-				this.width -
-					(this.tableChars.left.length + this.tableChars.right.length + this.name.length)
-			) {
-				this.top[1].push(" ");
-			}
-
-			if (i < this.tableChars.left.length + this.idColMaxWidth) {
-				this.top[2].push(this.tableChars.middleMiddle);
-			} else if (i === this.tableChars.left.length + this.idColMaxWidth) {
-				this.top[2].push(this.tableChars.topMiddle);
-			} else if (i < this.width - 1) {
-				this.top[2].push(this.tableChars.middleMiddle);
-			}
-		}
-
-		this.top[0].push(this.tableChars.topRight);
-		this.top[1].push(this.tableChars.right);
-		this.top[2].push(this.tableChars.rightMiddle);
+	public getTable(table: "main" | "help"): string {
+		if (table === "main") return this.renderedMainTable;
+		else return this.renderedHelpTable;
 	}
 }
