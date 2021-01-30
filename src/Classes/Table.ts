@@ -1,6 +1,7 @@
 import { ITableChars, ITable, IOption } from "./../Interfaces/Table";
-import { IRowOption } from "./../Interfaces/Menu";
 import Colors from "./Colors";
+import { Command } from "./Command";
+import { Menu } from "./Menu";
 
 export class Table implements ITable {
 	/*
@@ -30,7 +31,7 @@ export class Table implements ITable {
 	};
 
 	title: string;
-	options: IRowOption[];
+	options: (Menu | Command)[];
 
 	protected idColMaxWidth: number;
 	protected nameColMaxWidth: number;
@@ -63,9 +64,9 @@ export class Table implements ITable {
 	}
 
 	private calculate(): void {
-		this.options.map((option: IRowOption, id: number) => {
+		this.options.map((option: Menu | Command, id: number) => {
 			let nameLength = option.name.length;
-			let idLength = (id++).toString().length;
+			let idLength = id.toString().length;
 			let descLength = option.description.length;
 
 			if (this.idColMaxWidth < idLength) this.idColMaxWidth = idLength;
@@ -89,11 +90,15 @@ export class Table implements ITable {
 			this.descColMaxWidth +
 			this.chars.right.length;
 
-		if (titleLength >= rowMainLength) this.widthMain = titleLength;
-		else this.widthMain = rowMainLength;
+		if (titleLength >= rowMainLength) {
+			this.widthMain = titleLength;
+			this.nameColMaxWidth += titleLength - rowMainLength;
+		} else this.widthMain = rowMainLength;
 
-		if (titleLength >= rowHelpLength) this.widthHelp = titleLength;
-		else this.widthHelp = rowHelpLength;
+		if (titleLength >= rowHelpLength) {
+			this.widthHelp = titleLength;
+			this.nameColMaxWidth += titleLength - rowHelpLength;
+		} else this.widthHelp = rowHelpLength;
 	}
 
 	protected renderMainTable(): void {
@@ -125,16 +130,16 @@ export class Table implements ITable {
 		rows[2] += this.chars.rightMiddle;
 		rows[2] = Colors.red({ str: rows[2], bright: true });
 
-		this.options.map((option: IRowOption, id: number) => {
+		this.options.map((option: Menu | Command, id: number) => {
 			rows[id + 3] = Colors.red({ str: this.chars.left, bright: true });
-			rows[id + 3] += Colors.cyan({ str: (id + 1).toString(), bright: true });
-			rows[id + 3] += " ".repeat(this.idColMaxWidth - (id + 1).toString().length);
+			rows[id + 3] += Colors.cyan({ str: id.toString(), bright: true });
+			rows[id + 3] += " ".repeat(this.idColMaxWidth - id.toString().length);
 			rows[id + 3] += Colors.red({ str: this.chars.middle, bright: true });
 			rows[id + 3] += Colors.magenta({ str: option.name, bright: true });
 			rows[id + 3] += " ".repeat(this.nameColMaxWidth - option.name.length);
 			rows[id + 3] += Colors.red({ str: this.chars.right, bright: true });
 
-			lastRow = id + 3;
+			lastRow = id + 4;
 		});
 
 		rows[lastRow] = rows[2].replace(this.chars.topMiddle, this.chars.bottomMiddle);
@@ -174,16 +179,16 @@ export class Table implements ITable {
 		rows[2] += this.chars.rightMiddle;
 		rows[2] = Colors.red({ str: rows[2], bright: true });
 
-		this.options.map((option: IRowOption, id: number) => {
+		this.options.map((option: Menu | Command, id: number) => {
 			rows[id + 3] = Colors.red({ str: this.chars.left, bright: true });
-			rows[id + 3] += Colors.cyan({ str: (id + 1).toString(), bright: true });
-			rows[id + 3] += " ".repeat(this.idColMaxWidth - (id + 1).toString().length);
+			rows[id + 3] += Colors.cyan({ str: id.toString(), bright: true });
+			rows[id + 3] += " ".repeat(this.idColMaxWidth - id.toString().length);
 			rows[id + 3] += Colors.red({ str: this.chars.middle, bright: true });
 			rows[id + 3] += Colors.magenta({ str: option.description, bright: true });
 			rows[id + 3] += " ".repeat(this.descColMaxWidth - option.description.length);
 			rows[id + 3] += Colors.red({ str: this.chars.right, bright: true });
 
-			lastRow = id + 3;
+			lastRow = id + 4;
 		});
 
 		rows[lastRow] = rows[2].replace(this.chars.topMiddle, this.chars.bottomMiddle);

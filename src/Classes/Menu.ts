@@ -1,33 +1,96 @@
 import readline from "readline";
 import { Table } from "./Table";
-import { IMenu, IOption, IRowOption } from "./../Interfaces/Menu";
+import { IMenu, IMenuOptions } from "./../Interfaces/Menu";
+import { Command } from "./Command";
 
 export class Menu implements IMenu {
+	public title: string;
+	public name: string;
+	public description: string;
+
 	protected rl: readline.Interface;
-	protected table: Table;
-	protected options: IRowOption[];
+	protected table: Table | null;
+	protected options: (Menu | Command)[];
 
-	constructor({ name, readline, options }: IOption) {
-		this.table = new Table({ title: name, options: options });
+	constructor({ title, name, description, parent, readline }: IMenuOptions) {
+		this.title = title;
+		this.name = name;
+		this.description = description;
+
 		this.rl = readline;
-		this.options = options;
+		this.table = null;
+
+		this.options = [];
+		this.addOption(
+			new Command({ name: "exit", description: "quit this menu", parent: parent }),
+		);
+		this.addOption(new help(this));
 	}
 
-	public render(table: "main" | "help"): void {
-		console.log(this.table.getTable(table));
+	public addOption(option: Menu | Command): void {
+		this.options.push(option);
 	}
 
-	public read(): void {
-		this.rl.question("Your choice : ", (answer) => {
-			let num: number = Number.parseInt(answer);
+	public createTables(): void {
+		this.table = new Table({ title: this.title, options: this.options });
+	}
 
-			if (num === 0) this.options[this.options.length - 1].handler();
-			else if (num > 0 && num <= this.options.length) this.options[num - 1].handler();
-			else {
+	protected read(opts: number[]): void {
+		if (opts[0]) {
+			let opt = opts[0];
+			opts.shift();
+			if (opt >= 0 && opt <= this.options.length) {
+				this.options[opt].run(opts, "main");
+			} else {
 				this.render("main");
-				console.log(answer, "is not a option");
-				this.read();
+				console.log(opt, "is not a option");
+				this.read([]);
 			}
-		});
+		} else {
+			this.rl.question("Your choice : ", (answer) => {
+				let num: number = Number.parseInt(answer);
+
+				if (num >= 0 && num <= this.options.length) {
+					this.options[num].run([], "main");
+				} else {
+					this.render("main");
+					console.log(answer, "is not a option");
+					this.read([]);
+				}
+			});
+		}
+	}
+
+	protected render(table: "main" | "help"): void {
+		if (this.table) {
+			console.log(this.table.getTable(table));
+		} else {
+			this.createTables();
+			this.render(table);
+		}
+	}
+
+	public run(opts: number[], table: "main" | "help") {
+		if (opts.length >= 1) {
+			this.read(opts);
+		} else {
+			this.render(table);
+			this.read([]);
+		}
+	}
+}
+
+class help extends Command {
+	constructor(parent: Menu) {
+		super({ name: "help", description: "help command", parent: parent });
+	}
+
+	run() {
+		if (this.parent) {
+			this.parent.run([], "help");
+		} else {
+			console.log("No parent");
+			process.exit();
+		}
 	}
 }

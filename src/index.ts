@@ -1,64 +1,54 @@
-import { Menu } from "./Classes/Menu";
 import child_process from "child_process";
 import readline from "readline";
 
+import { Menu } from "./Classes/Menu";
+import { Command } from "./Classes/Command";
+
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
-const MainMenu = new Menu({
-	name: "Main menu",
-	readline: rl,
-	options: [
-		{
+class RunMonitor extends Command {
+	constructor(parent: Menu) {
+		super({
 			name: "Upload and monitor",
-			description: "Upload to arduino and monitor it",
-			handler: () => {
-				child_process.execSync("pio run", { stdio: "inherit" });
-				MainMenu.render("main");
-				MainMenu.read();
-			},
-		},
-		{
-			name: "Set Menu",
-			description: "menu to set some value",
-			handler: () => {
-				SetMenu.render("main");
-				SetMenu.read();
-			},
-		},
-		{
-			name: "exit",
-			description: "exit the menu",
-			handler: () => {
-				process.exit();
-			},
-		},
-	],
-});
+			description: "Will upload to the device and monitor the output",
+			parent: parent,
+		});
+	}
 
-const SetMenu = new Menu({
-	name: "Set menu",
-	readline: rl,
-	options: [
-		{
-			name: "ok",
-			description: "print ok",
-			handler: () => {
-				console.log("ok");
-				SetMenu.render("main");
-				SetMenu.read();
-			},
-		},
-		{
-			name: "go back",
-			description: "return to main menu",
-			handler: () => {
-				MainMenu.render("main");
-				MainMenu.read();
-			},
-		},
-	],
-});
+	public run(): void {
+		console.log("monitor");
+		this.parent?.run([], "main");
+	}
+}
 
-MainMenu.render("main");
+class SetMenu extends Menu {
+	constructor(parent: Menu) {
+		super({
+			title: "Set menu",
+			name: "Set menu",
+			description: "THe set menu",
+			parent: parent,
+			readline: rl,
+		});
+		this.addOption(new RunMonitor(this));
+	}
+}
 
-MainMenu.read();
+class MainMenu extends Menu {
+	constructor() {
+		super({
+			title: "Main menu",
+			description: "The main menu",
+			name: "Main menu",
+			parent: null,
+			readline: rl,
+		});
+
+		this.addOption(new RunMonitor(this));
+		this.addOption(new SetMenu(this));
+	}
+}
+
+const FirstMenu = new MainMenu();
+
+FirstMenu.run([], "main");

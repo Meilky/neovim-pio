@@ -1,4 +1,5 @@
-import { IRowOption } from "./Menu";
+import { Command } from "../Classes/Command";
+import { Menu } from "../Classes/Menu";
 
 export interface ITableChars {
 	middleMiddle: string;
@@ -19,12 +20,12 @@ export interface ITableChars {
 export interface ITable {
 	chars: ITableChars;
 	title: string;
-	options: IRowOption[];
+	options: (Menu | Command)[];
 
 	getTable(table: "main" | "help"): string;
 }
 
 export interface IOption {
 	title: string;
-	options: IRowOption[];
+	options: (Menu | Command)[];
 }

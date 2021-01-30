@@ -1,18 +1,20 @@
 import readline from "readline";
-
-export interface IRowOption {
-	name: string;
-	description: string;
-	handler: Function;
-}
-
-export interface IOption {
-	name: string;
-	readline: readline.Interface;
-	options: IRowOption[];
-}
+import { Command } from "./../Classes/Command";
+import { Menu } from "./../Classes/Menu";
 
 export interface IMenu {
-	render(table: "main" | "help"): void;
-	read(): void;
+	title: string;
+	description: string;
+
+	addOption(option: Menu | Command): void;
+	createTables(): void;
+	run(opts: number[], table: "main" | "help"): void;
+}
+
+export interface IMenuOptions {
+	title: string;
+	name: string;
+	description: string;
+	parent: Menu | null;
+	readline: readline.Interface;
 }
