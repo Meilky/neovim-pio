@@ -8,7 +8,7 @@ export interface IMenu {
 
 	addOption(option: Menu | Command): void;
 	onLoad(opts: number[], table: "main" | "help"): void;
-	onExit(): void;
+	onExit(opts: number[]): void;
 	onError(error: Error): void;
 }
 

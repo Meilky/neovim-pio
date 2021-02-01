@@ -1,11 +1,25 @@
 import readline from "readline";
 import Colors from "./Classes/Colors";
 
-import { Npio } from "./Menus";
+import { Npio } from "./Menus/Npio";
 
 const path = process.argv[2];
 const filename = process.argv[3];
-console.log(path, filename);
+const rawOpts = process.argv.splice(4, process.argv.length);
+
+let opts: number[] = [];
+
+rawOpts.map((nb) => {
+	const parsedNb = Number.parseInt(nb);
+
+	if (!Number.isNaN(parsedNb)) opts.push(parsedNb);
+	else {
+		console.log(
+			Colors.red({ str: nb + " is not assignable to the type number", bright: true }),
+		);
+		process.exit();
+	}
+});
 
 if (!path) {
 	console.log(Colors.red({ str: "No path to project specified" }));
@@ -33,4 +47,4 @@ const rl = readline.createInterface({
 
 const App = new Npio({ path: path + "/", filename: filename, rl: rl });
 
-App.run([]);
+App.run(opts);

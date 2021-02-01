@@ -14,10 +14,10 @@ export class RunMonitor extends Command {
 		this.parent = parent;
 	}
 
-	public onLoad(): void {
+	public onLoad(opts: number[]): void {
 		try {
 		} catch (error) {}
 		console.log("monitor");
-		this.parent.onLoad([], "main");
+		this.parent.onLoad(opts, "main");
 	}
 }

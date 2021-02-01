@@ -20,8 +20,18 @@ call plug#end()
 
 ## Usage
 
-Npio is a command that you can call with the path to the current directorie and the name of the ini config file from pio
+Npio is a command that you can call with the path to the current directory, the name of the ini config file and the options your want to run.
 
 ```vim
-:Npio(expand("%:p:h"),"platformio.ini")
+:call Npio(expand("%:p:h"), "platformio.ini", "3 2 1")
 ```
+
+1.) expand() = Function that parse the path
+
+2.) %:p = Current working directory
+
+3.) :h = Remove last element from path (exemple: "/joe/bloe" -> "/joe")
+
+4.) "platformio.ini" = Platformio project config file
+
+5.) "3 1 0" = all the menu to execute (exemple: "3 1 0" will select the option 1, after the option 2, etc ... )

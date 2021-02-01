@@ -24,12 +24,12 @@ export abstract class Menu implements IMenu {
 		this.table = null;
 
 		this.options = [];
-		this.addOption(new exit(parent));
+		this.addOption(new exit(this));
 		this.addOption(new help(this));
 	}
 
 	public onLoad(opts: number[], table: "main" | "help"): void {
-		if (opts[0]) {
+		if ((opts[0] || opts[0] === 0) && !Number.isNaN(opts[0])) {
 			this.read(opts);
 		} else {
 			this.render(table);
@@ -38,14 +38,13 @@ export abstract class Menu implements IMenu {
 	}
 
 	public onError(error: Error): void {
-		this.onLoad([], "help");
+		this.render("help");
 		console.log(Colors.red({ str: error.message, bright: true }));
+		this.read([]);
 	}
 
-	public onExit(msg?: string): void {
-		if (msg) console.log(msg);
-
-		if (this.parent) this.parent.onLoad([], "main");
+	public onExit(opts: number[]): void {
+		if (this.parent) this.parent.onLoad(opts, "main");
 		else process.exit();
 	}
 
@@ -63,20 +62,19 @@ export abstract class Menu implements IMenu {
 	}
 
 	protected read(opts: number[]): void {
-		if (opts[0]) {
+		if ((opts[0] || opts[0] === 0) && !Number.isNaN(opts[0])) {
 			let opt = opts[0];
 			opts.shift();
-			if (opt >= 0 && opt <= this.options.length) {
+			if (opt >= 0 && opt <= this.options.length - 1) {
 				this.options[opt].onLoad(opts, "main");
 			} else {
 				this.onError(new Error(opt.toString() + " in not a option"));
-				this.read([]);
 			}
 		} else {
 			this.rl.question("Your choice : ", (answer) => {
 				let opt: number = Number.parseInt(answer);
 
-				if (opt >= 0 && opt <= this.options.length) {
+				if (opt >= 0 && opt <= this.options.length - 1) {
 					this.options[opt].onLoad(opts, "main");
 				} else {
 					this.onError(new Error(opt.toString() + " in not a option"));
@@ -92,9 +90,9 @@ class help extends Command {
 		super({ name: "help", description: "help command", parent: parent });
 	}
 
-	onLoad() {
+	onLoad(opts: number[]) {
 		if (this.parent) {
-			this.parent.onLoad([], "help");
+			this.parent.onLoad(opts, "help");
 		} else {
 			console.log(Colors.yellow({ str: "No parent", bright: true }));
 			process.exit();
@@ -107,9 +105,9 @@ class exit extends Command {
 		super({ name: "exit", description: "quit this menu", parent: parent });
 	}
 
-	onLoad() {
+	onLoad(opts: number[]) {
 		if (this.parent) {
-			this.parent.onLoad([], "main");
+			this.parent.onExit(opts);
 		} else {
 			console.log(Colors.yellow({ str: "No parent", bright: true }));
 			process.exit();

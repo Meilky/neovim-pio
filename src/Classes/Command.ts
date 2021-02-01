@@ -12,5 +12,5 @@ export abstract class Command implements ICommand {
 		this.parent = parent;
 	}
 
-	public abstract onLoad(): void;
+	public abstract onLoad(opts: number[]): void;
 }
