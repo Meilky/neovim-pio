@@ -1,6 +1,6 @@
-noremap <C-p> Npio<CR>
+noremap! <C-p> :Npio<CR>
 
-command! Npio :NPIO(expand("%:p:h"),"platformio.ini","1")<CR>
+command! Npio :call NPIO(expand("%:p:h"),"platformio.ini","")<CR>
 
 let s:plugindir = expand('<sfile>:p:h:h')
 
