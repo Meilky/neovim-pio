@@ -1,6 +1,6 @@
-noremap <C-p>Npio<CR>
+noremap <C-p>:Npio<CR>
 
-command! Npio :call NPIO('/build/index.js')<CR>
+command! Npio pwd<CR>
 
 let s:plugindir = expand('<sfile>:p:h:h')
 

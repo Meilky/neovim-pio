@@ -24,9 +24,7 @@ export class Menu implements IMenu {
 		this.table = null;
 
 		this.options = [];
-		this.addOption(
-			new Command({ name: "exit", description: "quit this menu", parent: parent }),
-		);
+		this.addOption(new exit(parent));
 
 		this.addOption(new help(this));
 	}
@@ -35,8 +33,8 @@ export class Menu implements IMenu {
 		if (opts[0]) {
 			this.read(opts);
 		} else {
-			this.read(opts);
 			this.render(table);
+			this.read(opts);
 		}
 	}
 
@@ -95,9 +93,24 @@ class help extends Command {
 		super({ name: "help", description: "help command", parent: parent });
 	}
 
-	run() {
+	onLoad() {
 		if (this.parent) {
 			this.parent.onLoad([], "help");
+		} else {
+			console.log(Colors.yellow({ str: "No parent", bright: true }));
+			process.exit();
+		}
+	}
+}
+
+class exit extends Command {
+	constructor(parent: Menu | null) {
+		super({ name: "exit", description: "quit this menu", parent: parent });
+	}
+
+	onLoad() {
+		if (this.parent) {
+			this.parent.onLoad([], "main");
 		} else {
 			console.log(Colors.yellow({ str: "No parent", bright: true }));
 			process.exit();
