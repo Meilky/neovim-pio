@@ -1,7 +1,7 @@
 import { ICommand, ICommandOptions } from "./../Interfaces/Command";
 import { Menu } from "./Menu";
 
-export class Command implements ICommand {
+export abstract class Command implements ICommand {
 	public description: string;
 	public name: string;
 	protected parent: Menu | null;
@@ -12,11 +12,5 @@ export class Command implements ICommand {
 		this.parent = parent;
 	}
 
-	public onLoad(): void {
-		if (this.parent) {
-			this.parent.onError(new Error("Nothing to do"));
-		} else {
-			process.exit();
-		}
-	}
+	public abstract onLoad(): void;
 }

@@ -1,7 +1,29 @@
-import child_process from "child_process";
 import readline from "readline";
+import Colors from "./Classes/Colors";
 
-import { MainMenu, Npio } from "./Menus";
+import { Npio } from "./Menus";
+
+const path = process.argv[2];
+const filename = process.argv[3];
+console.log(path, filename);
+
+if (!path) {
+	console.log(Colors.red({ str: "No path to project specified" }));
+	process.exit();
+}
+
+if (!filename) {
+	console.log(Colors.red({ str: "No platformio config ini file specified specified" }));
+	process.exit();
+}
+
+const filenameArr = filename.split(".");
+const extention = filenameArr[filenameArr.length - 1];
+
+if (extention !== "ini") {
+	console.log(Colors.red({ str: "No ini config file specified" }));
+	process.exit();
+}
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -9,12 +31,6 @@ const rl = readline.createInterface({
 	prompt: ">>",
 });
 
-let path = process.argv[2];
+const App = new Npio({ path: path + "/", filename: filename, rl: rl });
 
-if (!path) {
-	path = "";
-}
-
-const App = new Npio({ path: path, MainMenu: new MainMenu(rl), rl: rl });
-
-App.run();
+App.run([]);

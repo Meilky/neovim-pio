@@ -1,72 +1,54 @@
 import { Menu } from "./Classes/Menu";
-import { Command } from "./Classes/Command";
 import { Parser } from "./Classes/Parser";
 
 import Colors from "./Classes/Colors";
 import readline from "readline";
 
-export class Npio {
-	parser: Parser;
-	rl: readline.Interface;
-	MainMenu: Menu;
+import { SetMenu } from "./Menus/SetMenu";
+import { RunMonitor } from "./Commands/RunMonitor";
+
+interface INpioOptions {
 	path: string;
-
-	constructor({ path, MainMenu, rl }: { path: string; MainMenu: Menu; rl: readline.Interface }) {
-		this.rl = rl;
-
-		this.parser = new Parser({ path: path });
-		this.MainMenu = MainMenu;
-		this.path = path;
-	}
-
-	public run() {
-		if (this.parser.parse()) {
-			this.MainMenu.onLoad([], "main");
-		} else {
-			console.log(Colors.red({ str: "No " + this.path + " file", bright: true }));
-			process.exit();
-		}
-	}
+	rl: readline.Interface;
+	filename: string;
 }
 
-export class RunMonitor extends Command {
-	constructor(parent: Menu) {
-		super({
-			name: "Upload and monitor",
-			description: "Will upload to the device and monitor the output",
-			parent: parent,
-		});
-	}
+export class Npio extends Menu {
+	protected parser: Parser;
+	protected rl: readline.Interface;
+	protected path: string;
+	protected filename: string;
 
-	public onLoad(): void {
-		console.log("monitor");
-		this.parent?.onLoad([], "main");
-	}
-}
-
-export class SetMenu extends Menu {
-	constructor(parent: Menu, rl: readline.Interface) {
+	constructor({ path, filename, rl }: INpioOptions) {
 		super({
-			title: "Set menu",
-			name: "Set menu",
-			description: "THe set menu",
-			parent: parent,
-			readline: rl,
-		});
-	}
-}
-
-export class MainMenu extends Menu {
-	constructor(rl: readline.Interface) {
-		super({
-			title: "Main menu",
+			title: "Npio",
 			description: "The main menu",
-			name: "Main menu",
+			name: "Npio",
 			parent: null,
 			readline: rl,
 		});
 
 		this.addOption(new RunMonitor(this));
 		this.addOption(new SetMenu(this, rl));
+		this.rl = rl;
+
+		this.path = path + "/";
+		this.filename = filename;
+
+		this.parser = new Parser({ path: this.path + filename });
+	}
+
+	public run(opts: number[]) {
+		if (this.parser.parse()) {
+			this.onLoad(opts, "main");
+		} else {
+			console.log(
+				Colors.red({
+					str: "Error while parsing " + this.path + this.filename,
+					bright: true,
+				}),
+			);
+			process.exit();
+		}
 	}
 }

@@ -4,7 +4,7 @@ import { IMenu, IMenuOptions } from "./../Interfaces/Menu";
 import { Command } from "./Command";
 import Colors from "./Colors";
 
-export class Menu implements IMenu {
+export abstract class Menu implements IMenu {
 	public title: string;
 	public name: string;
 	public description: string;
@@ -25,7 +25,6 @@ export class Menu implements IMenu {
 
 		this.options = [];
 		this.addOption(new exit(parent));
-
 		this.addOption(new help(this));
 	}
 
