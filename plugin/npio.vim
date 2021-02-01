@@ -1,4 +1,4 @@
-noremap! <C-p> :Npio<CR>
+map <C-p> :Npio<CR>
 
 command! Npio :call NPIO(expand("%:p:h"),"platformio.ini","")<CR>
 
