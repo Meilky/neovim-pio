@@ -4,8 +4,36 @@ import readline from "readline";
 import { Menu } from "./Classes/Menu";
 import { Command } from "./Classes/Command";
 import { Parser } from "./Classes/Parser";
+import Colors from "./Classes/Colors";
 
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const rl = readline.createInterface({
+	input: process.stdin,
+	output: process.stdout,
+	prompt: ">>",
+});
+
+class Npio {
+	parser: Parser;
+	rl: readline.Interface;
+	MainMenu: Menu;
+
+	constructor({ pathToConfig, MainMenu }: { pathToConfig: string; MainMenu: Menu }) {
+		this.rl = rl;
+
+		this.parser = new Parser({ path: pathToConfig });
+		this.MainMenu = MainMenu;
+	}
+
+	public run() {
+		if (this.parser.parse()) {
+			this.MainMenu.onLoad([], "main");
+			console.log(this.parser.getConfig());
+		} else {
+			console.log(Colors.red({ str: "No platforio.ini file", bright: true }));
+			process.exit();
+		}
+	}
+}
 
 class RunMonitor extends Command {
 	constructor(parent: Menu) {
@@ -16,9 +44,9 @@ class RunMonitor extends Command {
 		});
 	}
 
-	public run(): void {
+	public onLoad(): void {
 		console.log("monitor");
-		this.parent?.run([], "main");
+		this.parent?.onLoad([], "main");
 	}
 }
 
@@ -50,13 +78,6 @@ class MainMenu extends Menu {
 	}
 }
 
-const FirstMenu = new MainMenu();
+const App = new Npio({ pathToConfig: "./platforio.ini", MainMenu: new MainMenu() });
 
-const parser = new Parser({ path: "./platforio.ini" });
-
-let parsed = parser.parse();
-
-if (parsed) {
-	console.log(parser.getConfig());
-	FirstMenu.run([], "main");
-} else process.exit();
+App.run();

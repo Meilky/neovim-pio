@@ -3,7 +3,7 @@ import { Menu } from "../Classes/Menu";
 export interface ICommand {
 	name: string;
 	description: string;
-	run(): void;
+	onLoad(): void;
 }
 
 export interface ICommandOptions {

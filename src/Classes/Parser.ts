@@ -1,4 +1,3 @@
-import { Menu } from "./Menu";
 import fs from "fs";
 import ini from "ini";
 import Colors from "./Colors";
@@ -34,9 +33,7 @@ export class Parser implements IParser {
 			this.config = ini.parse(fileData);
 			parsed = true;
 		} catch (error) {
-			if (error.code === "ENOENT")
-				console.log(Colors.red({ str: "No platformio.ini file detected", bright: true }));
-			else console.error(error);
+			if (error.code !== "ENOENT") console.error(error);
 
 			parsed = false;
 		}

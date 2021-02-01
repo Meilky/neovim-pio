@@ -2,6 +2,7 @@ import readline from "readline";
 import { Table } from "./Table";
 import { IMenu, IMenuOptions } from "./../Interfaces/Menu";
 import { Command } from "./Command";
+import Colors from "./Colors";
 
 export class Menu implements IMenu {
 	public title: string;
@@ -11,11 +12,13 @@ export class Menu implements IMenu {
 	protected rl: readline.Interface;
 	protected table: Table | null;
 	protected options: (Menu | Command)[];
+	protected parent: Menu | null;
 
 	constructor({ title, name, description, parent, readline }: IMenuOptions) {
 		this.title = title;
 		this.name = name;
 		this.description = description;
+		this.parent = parent;
 
 		this.rl = readline;
 		this.table = null;
@@ -24,15 +27,42 @@ export class Menu implements IMenu {
 		this.addOption(
 			new Command({ name: "exit", description: "quit this menu", parent: parent }),
 		);
+
 		this.addOption(new help(this));
+	}
+
+	public onLoad(opts: number[], table: "main" | "help"): void {
+		if (opts[0]) {
+			this.read(opts);
+		} else {
+			this.read(opts);
+			this.render(table);
+		}
+	}
+
+	public onError(error: Error): void {
+		this.onLoad([], "help");
+		console.log(Colors.red({ str: error.message, bright: true }));
+	}
+
+	public onExit(msg?: string): void {
+		if (msg) console.log(msg);
+
+		if (this.parent) this.parent.onLoad([], "main");
+		else process.exit();
 	}
 
 	public addOption(option: Menu | Command): void {
 		this.options.push(option);
 	}
 
-	public createTables(): void {
-		this.table = new Table({ title: this.title, options: this.options });
+	protected render(table: "main" | "help"): void {
+		if (this.table) {
+			console.log(this.table.getTable(table));
+		} else {
+			this.table = new Table({ title: this.title, options: this.options });
+			this.render(table);
+		}
 	}
 
 	protected read(opts: number[]): void {
@@ -40,42 +70,22 @@ export class Menu implements IMenu {
 			let opt = opts[0];
 			opts.shift();
 			if (opt >= 0 && opt <= this.options.length) {
-				this.options[opt].run(opts, "main");
+				this.options[opt].onLoad(opts, "main");
 			} else {
-				this.render("main");
-				console.log(opt, "is not a option");
+				this.onError(new Error(opt.toString() + " in not a option"));
 				this.read([]);
 			}
 		} else {
 			this.rl.question("Your choice : ", (answer) => {
-				let num: number = Number.parseInt(answer);
+				let opt: number = Number.parseInt(answer);
 
-				if (num >= 0 && num <= this.options.length) {
-					this.options[num].run([], "main");
+				if (opt >= 0 && opt <= this.options.length) {
+					this.options[opt].onLoad(opts, "main");
 				} else {
-					this.render("main");
-					console.log(answer, "is not a option");
+					this.onError(new Error(opt.toString() + " in not a option"));
 					this.read([]);
 				}
 			});
-		}
-	}
-
-	protected render(table: "main" | "help"): void {
-		if (this.table) {
-			console.log(this.table.getTable(table));
-		} else {
-			this.createTables();
-			this.render(table);
-		}
-	}
-
-	public run(opts: number[], table: "main" | "help") {
-		if (opts.length >= 1) {
-			this.read(opts);
-		} else {
-			this.render(table);
-			this.read([]);
 		}
 	}
 }
@@ -87,9 +97,9 @@ class help extends Command {
 
 	run() {
 		if (this.parent) {
-			this.parent.run([], "help");
+			this.parent.onLoad([], "help");
 		} else {
-			console.log("No parent");
+			console.log(Colors.yellow({ str: "No parent", bright: true }));
 			process.exit();
 		}
 	}

@@ -12,11 +12,10 @@ export class Command implements ICommand {
 		this.parent = parent;
 	}
 
-	public run(): void {
+	public onLoad(): void {
 		if (this.parent) {
-			this.parent.run([], "main");
+			this.parent.onError(new Error("Nothing to do"));
 		} else {
-			console.log("Good bye");
 			process.exit();
 		}
 	}
