@@ -1,7 +1,10 @@
 import readline from "readline";
 import Colors from "./Classes/Colors";
+import { Parser } from "./Classes/Parser";
+import { RunMonitor } from "./Commands/RunMonitor";
 
-import { Npio } from "./Menus/Npio";
+import { Application } from "./Menus/Npio";
+import { SetMenu } from "./Menus/SetMenu";
 
 const path = process.argv[2];
 const filename = process.argv[3];
@@ -45,6 +48,16 @@ const rl = readline.createInterface({
 	prompt: ">>",
 });
 
-const App = new Npio({ path: path + "/", filename: filename, rl: rl });
+const parser = new Parser({ path: path + "/" + filename });
 
-App.run(opts);
+if (!parser.parse()) {
+	console.log(Colors.red({ str: "Error while parsing " + path + "/" + filename, bright: true }));
+	process.exit();
+}
+
+const App = new Application({ rl: rl, parser: parser });
+
+App.addOption(new RunMonitor(App, parser));
+App.addOption(new SetMenu(App, rl, parser));
+
+App.onLoad(opts, "main");

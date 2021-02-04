@@ -1,4 +1,6 @@
 import { Menu } from "../Classes/Menu";
+import { Parser } from "../Classes/Parser";
+import { Application } from "../Menus/Npio";
 
 export interface ICommand {
 	name: string;
@@ -9,5 +11,6 @@ export interface ICommand {
 export interface ICommandOptions {
 	name: string;
 	description: string;
-	parent: Menu | null;
+	parent: Menu | Application;
+	parser: Parser;
 }

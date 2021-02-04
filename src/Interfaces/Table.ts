@@ -1,5 +1,6 @@
 import { Command } from "../Classes/Command";
 import { Menu } from "../Classes/Menu";
+import { Exit } from "../Commands/Exit";
 
 export interface ITableChars {
 	middleMiddle: string;
@@ -20,12 +21,12 @@ export interface ITableChars {
 export interface ITable {
 	chars: ITableChars;
 	title: string;
-	options: (Menu | Command)[];
+	options: (Menu | Command | Exit)[];
 
 	getTable(table: "main" | "help"): string;
 }
 
 export interface IOption {
 	title: string;
-	options: (Menu | Command)[];
+	options: (Menu | Command | Exit)[];
 }

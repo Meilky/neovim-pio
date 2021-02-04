@@ -1,3 +1,5 @@
+import { Exit } from "../Commands/Exit";
+import { Application } from "../Menus/Npio";
 import { ITableChars, ITable, IOption } from "./../Interfaces/Table";
 import Colors from "./Colors";
 import { Command } from "./Command";
@@ -31,7 +33,7 @@ export class Table implements ITable {
 	};
 
 	title: string;
-	options: (Menu | Command)[];
+	options: (Menu | Command | Exit)[];
 
 	protected idColMaxWidth: number;
 	protected nameColMaxWidth: number;
@@ -64,7 +66,7 @@ export class Table implements ITable {
 	}
 
 	private calculate(): void {
-		this.options.map((option: Menu | Command, id: number) => {
+		this.options.map((option: Menu | Command | Exit, id: number) => {
 			let nameLength = option.name.length;
 			let idLength = id.toString().length;
 			let descLength = option.description.length;
@@ -130,7 +132,7 @@ export class Table implements ITable {
 		rows[2] += this.chars.rightMiddle;
 		rows[2] = Colors.red({ str: rows[2], bright: true });
 
-		this.options.map((option: Menu | Command, id: number) => {
+		this.options.map((option: Menu | Command | Exit, id: number) => {
 			rows[id + 3] = Colors.red({ str: this.chars.left, bright: true });
 			rows[id + 3] += Colors.cyan({ str: id.toString(), bright: true });
 			rows[id + 3] += " ".repeat(this.idColMaxWidth - id.toString().length);
@@ -179,7 +181,7 @@ export class Table implements ITable {
 		rows[2] += this.chars.rightMiddle;
 		rows[2] = Colors.red({ str: rows[2], bright: true });
 
-		this.options.map((option: Menu | Command, id: number) => {
+		this.options.map((option: Menu | Command | Exit, id: number) => {
 			rows[id + 3] = Colors.red({ str: this.chars.left, bright: true });
 			rows[id + 3] += Colors.cyan({ str: id.toString(), bright: true });
 			rows[id + 3] += " ".repeat(this.idColMaxWidth - id.toString().length);

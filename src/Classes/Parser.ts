@@ -1,6 +1,5 @@
 import fs from "fs";
 import ini from "ini";
-import Colors from "./Colors";
 
 interface IParserOptions {
 	path: string;
@@ -11,18 +10,20 @@ interface IConfig {
 }
 
 interface IParser {
-	setOption(key: string, value: any): void;
+	setOption(key: string, propriety: string, value: any): void;
 	saveConfig(): boolean;
 	getConfig(): IConfig;
 }
 
 export class Parser implements IParser {
+	protected currentEnv: string;
 	protected config: IConfig;
 	protected path: string;
 
 	constructor({ path }: IParserOptions) {
 		this.config = {};
 		this.path = path;
+		this.currentEnv = "null";
 	}
 
 	public parse(): boolean {
@@ -34,24 +35,28 @@ export class Parser implements IParser {
 			parsed = true;
 		} catch (error) {
 			if (error.code !== "ENOENT") console.error(error);
-
 			parsed = false;
+		}
+
+		if (parsed && !Object.keys(this.config).includes("npio")) {
+			this.setOption("npio", "currentEnv", "null");
 		}
 
 		return parsed;
 	}
 
-	public setOption(key: string, value: any) {
-		this.config[key] = ini.safe(value);
+	public setOption(key: string, propriety: string, value: any): boolean {
+		this.config[key][propriety] = ini.safe(value);
+		return this.saveConfig();
 	}
 
 	public saveConfig(): boolean {
 		let saved: boolean;
+
 		try {
-			fs.writeFileSync("path", ini.encode(this.config));
+			fs.writeFileSync(this.path, ini.encode(this.config));
 			saved = true;
 		} catch (err) {
-			console.error(err);
 			saved = false;
 		}
 

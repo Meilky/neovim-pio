@@ -1,49 +1,101 @@
-import { Menu } from "../Classes/Menu";
-import { Parser } from "../Classes/Parser";
-
-import Colors from "../Classes/Colors";
 import readline from "readline";
 
-import { SetMenu } from "../Menus/SetMenu";
-import { RunMonitor } from "../Commands/RunMonitor";
-import { INpioOptions } from "../Interfaces/Npio";
+import { Table } from "./../Classes/Table";
+import { Command } from "./../Classes/Command";
+import { Exit } from "../Commands/Exit";
+import Colors from "./../Classes/Colors";
+import { Parser } from "./../Classes/Parser";
+import { Help } from "./../Commands/Help";
+import { Menu } from "../Classes/Menu";
 
-export class Npio extends Menu {
-	protected parser: Parser;
+interface IApplicationOptions {
+	rl: readline.Interface;
+	parser: Parser;
+}
+
+export class Application {
+	public title: string;
+	public name: string;
+	public description: string;
+
 	protected rl: readline.Interface;
-	protected path: string;
-	protected filename: string;
+	protected table: Table | null;
+	protected options: (Menu | Command | Exit)[];
+	protected parser: Parser;
 
-	constructor({ path, filename, rl }: INpioOptions) {
-		super({
-			title: "Npio",
-			description: "The main menu",
-			name: "Npio",
-			parent: null,
-			readline: rl,
-		});
+	constructor({ rl, parser }: IApplicationOptions) {
+		this.title = "Npio";
+		this.name = "Npio";
+		this.description = "Main menu";
+		this.parser = parser;
 
-		this.addOption(new RunMonitor(this));
-		this.addOption(new SetMenu(this, rl));
 		this.rl = rl;
+		this.table = null;
 
-		this.path = path + "/";
-		this.filename = filename;
+		this.options = [];
 
-		this.parser = new Parser({ path: this.path + filename });
+		this.addOption(new Exit(this));
+		this.addOption(new Help(this, this.parser));
 	}
 
-	public run(opts: number[]) {
-		if (this.parser.parse()) {
-			this.onLoad(opts, "main");
+	public onLoad(opts: number[], table: "main" | "help"): void {
+		if ((opts[0] || opts[0] === 0) && !Number.isNaN(opts[0])) {
+			this.read(opts);
 		} else {
-			console.log(
-				Colors.red({
-					str: "Error while parsing " + this.path + this.filename,
-					bright: true,
-				}),
-			);
-			process.exit();
+			this.render(table);
+			this.read(opts);
+		}
+	}
+
+	public onSuccess(opts: number[], msg?: string) {
+		this.render("main");
+		if (msg) console.log(Colors.green({ str: msg, bright: true }));
+		this.read(opts);
+	}
+
+	public onError(error: Error): void {
+		this.render("help");
+		console.log(Colors.red({ str: error.message, bright: true }));
+		this.read([]);
+	}
+
+	public onExit(): void {
+		process.exit();
+	}
+
+	public addOption(option: Menu | Command | Exit): void {
+		this.options.push(option);
+	}
+
+	protected render(table: "main" | "help"): void {
+		if (this.table) {
+			console.log(this.table.getTable(table));
+		} else {
+			this.table = new Table({ title: this.title, options: this.options });
+			this.render(table);
+		}
+	}
+
+	protected read(opts: number[]): void {
+		if ((opts[0] || opts[0] === 0) && !Number.isNaN(opts[0])) {
+			let opt = opts[0];
+			opts.shift();
+			if (opt >= 0 && opt <= this.options.length - 1) {
+				this.options[opt].onLoad(opts, "main");
+			} else {
+				this.onError(new Error(opt.toString() + " in not a option"));
+			}
+		} else {
+			this.rl.question("Your choice : ", (answer) => {
+				let opt: number = Number.parseInt(answer);
+
+				if (opt >= 0 && opt <= this.options.length - 1) {
+					this.options[opt].onLoad(opts, "main");
+				} else {
+					this.onError(new Error(opt.toString() + " in not a option"));
+					this.read([]);
+				}
+			});
 		}
 	}
 }

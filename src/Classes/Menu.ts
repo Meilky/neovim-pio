@@ -1,8 +1,13 @@
 import readline from "readline";
+
 import { Table } from "./Table";
 import { IMenu, IMenuOptions } from "./../Interfaces/Menu";
 import { Command } from "./Command";
+import { Exit } from "../Commands/Exit";
 import Colors from "./Colors";
+import { Parser } from "./Parser";
+import { Help } from "./../Commands/Help";
+import { Application } from "../Menus/Npio";
 
 export abstract class Menu implements IMenu {
 	public title: string;
@@ -11,21 +16,24 @@ export abstract class Menu implements IMenu {
 
 	protected rl: readline.Interface;
 	protected table: Table | null;
-	protected options: (Menu | Command)[];
-	protected parent: Menu | null;
+	protected options: (Menu | Command | Exit)[];
+	protected parent: Menu | Application;
+	protected parser: Parser;
 
-	constructor({ title, name, description, parent, readline }: IMenuOptions) {
+	constructor({ title, name, description, parent, readline, parser }: IMenuOptions) {
 		this.title = title;
 		this.name = name;
 		this.description = description;
 		this.parent = parent;
+		this.parser = parser;
 
 		this.rl = readline;
 		this.table = null;
 
 		this.options = [];
-		this.addOption(new exit(this));
-		this.addOption(new help(this));
+
+		this.addOption(new Exit(this));
+		this.addOption(new Help(this, parser));
 	}
 
 	public onLoad(opts: number[], table: "main" | "help"): void {
@@ -35,6 +43,12 @@ export abstract class Menu implements IMenu {
 			this.render(table);
 			this.read(opts);
 		}
+	}
+
+	public onSuccess(opts: number[], msg?: string) {
+		this.render("main");
+		if (msg) console.log(Colors.green({ str: msg, bright: true }));
+		this.read(opts);
 	}
 
 	public onError(error: Error): void {
@@ -48,7 +62,7 @@ export abstract class Menu implements IMenu {
 		else process.exit();
 	}
 
-	public addOption(option: Menu | Command): void {
+	public addOption(option: Menu | Command | Exit): void {
 		this.options.push(option);
 	}
 
@@ -81,36 +95,6 @@ export abstract class Menu implements IMenu {
 					this.read([]);
 				}
 			});
-		}
-	}
-}
-
-class help extends Command {
-	constructor(parent: Menu) {
-		super({ name: "help", description: "help command", parent: parent });
-	}
-
-	onLoad(opts: number[]) {
-		if (this.parent) {
-			this.parent.onLoad(opts, "help");
-		} else {
-			console.log(Colors.yellow({ str: "No parent", bright: true }));
-			process.exit();
-		}
-	}
-}
-
-class exit extends Command {
-	constructor(parent: Menu | null) {
-		super({ name: "exit", description: "quit this menu", parent: parent });
-	}
-
-	onLoad(opts: number[]) {
-		if (this.parent) {
-			this.parent.onExit(opts);
-		} else {
-			console.log(Colors.yellow({ str: "No parent", bright: true }));
-			process.exit();
 		}
 	}
 }
