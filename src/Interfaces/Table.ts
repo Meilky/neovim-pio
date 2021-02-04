@@ -1,5 +1,6 @@
 import { Command } from "../Classes/Command";
 import { Menu } from "../Classes/Menu";
+import { Parser } from "../Classes/Parser";
 import { Exit } from "../Commands/Exit";
 
 export interface ITableChars {

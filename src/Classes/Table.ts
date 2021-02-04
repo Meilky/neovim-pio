@@ -4,6 +4,7 @@ import { ITableChars, ITable, IOption } from "./../Interfaces/Table";
 import Colors from "./Colors";
 import { Command } from "./Command";
 import { Menu } from "./Menu";
+import { Parser } from "./Parser";
 
 export class Table implements ITable {
 	/*
@@ -47,7 +48,6 @@ export class Table implements ITable {
 
 	constructor({ title, options }: IOption) {
 		this.title = title;
-
 		this.options = options;
 
 		this.idColMaxWidth = 0;

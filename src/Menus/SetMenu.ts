@@ -16,9 +16,10 @@ export class SetMenu extends Menu {
 			parser: parser,
 		});
 
-		this.addOption(new GetOptions(this, parser));
+		this.addOption(new PrintEnvs(this, parser));
 		this.addOption(new SetCurrentEnv(this, rl, parser));
-		this.addOption(new GetPossibleEnv(this, parser));
+		this.addOption(new PrintOptions(this, parser));
+		this.addOption(new SetOption(this, parser, rl));
 	}
 
 	public onSuccess(opts: number[], msg: string) {
@@ -28,10 +29,10 @@ export class SetMenu extends Menu {
 	}
 }
 
-class GetPossibleEnv extends Command {
+class PrintEnvs extends Command {
 	constructor(parent: SetMenu, parser: Parser) {
 		super({
-			name: "get possible env",
+			name: "print envs",
 			description: "print all possible env of your config file",
 			parent: parent,
 			parser: parser,
@@ -44,13 +45,15 @@ class GetPossibleEnv extends Command {
 		let config = this.parser.getConfig();
 		let possibleEnv = Object.keys(config);
 
+		let str = "";
 		possibleEnv.map((env) => {
 			if (env !== "npio") {
-				console.log(Colors.magenta({ str: env, bright: true }));
+				str += Colors.magenta({ str: env, bright: true }) + "\n";
 			}
 		});
 
-		this.parent.onLoad(opts, "main");
+		if (str.length > 0) this.parent.onSuccess(opts, str);
+		else this.parent.onError(new Error("There is no env"));
 	}
 }
 
@@ -88,7 +91,7 @@ class SetCurrentEnv extends Command {
 	}
 }
 
-class GetOptions extends Command {
+class PrintOptions extends Command {
 	constructor(parent: Menu | Application, parser: Parser) {
 		super({
 			name: "print options",
@@ -104,12 +107,59 @@ class GetOptions extends Command {
 		let possibleEnv = Object.keys(config);
 
 		if (possibleEnv.includes(currentEnv)) {
+			let str = "";
 			Object.keys(config[currentEnv]).map((key, id) => {
-				console.log(key + " = " + config[currentEnv][key]);
+				str +=
+					Colors.cyan({ str: key, bright: true }) +
+					" = " +
+					Colors.yellow({ str: config[currentEnv][key], bright: true }) +
+					"\n";
 			});
-			this.parent.onLoad(opts, "main");
+			this.parent.onSuccess(opts, str);
 		} else {
 			this.parent.onError(new Error(currentEnv + " is not a env in your project config"));
 		}
+	}
+}
+
+class SetOption extends Command {
+	protected rl: readline.Interface;
+
+	constructor(parent: SetMenu, parser: Parser, rl: readline.Interface) {
+		super({
+			name: "set option",
+			description: "set the value of a given option",
+			parent: parent,
+			parser: parser,
+		});
+		this.rl = rl;
+	}
+
+	onLoad(opts: number[]) {
+		let config = this.parser.getConfig();
+		let currentEnv = config.npio.currentEnv;
+
+		this.rl.question("option name : ", (answer) => {
+			this.rl.question(answer + " value : ", (value) => {
+				let bool = this.parser.setOption(currentEnv, answer, value);
+				if (bool) {
+					this.parent.onSuccess(
+						opts,
+						answer + " as been set to " + value + " in this env " + currentEnv,
+					);
+				} else {
+					this.parent.onError(
+						new Error(
+							"Failed to set " +
+								answer +
+								" to " +
+								value +
+								" in this env " +
+								currentEnv,
+						),
+					);
+				}
+			});
+		});
 	}
 }

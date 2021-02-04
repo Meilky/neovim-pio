@@ -46,6 +46,9 @@ export class Parser implements IParser {
 	}
 
 	public setOption(key: string, propriety: string, value: any): boolean {
+		if (!Object.keys(this.config).includes(key)) {
+			this.config[key] = {};
+		}
 		this.config[key][propriety] = ini.safe(value);
 		return this.saveConfig();
 	}
@@ -55,7 +58,9 @@ export class Parser implements IParser {
 
 		try {
 			fs.writeFileSync(this.path, ini.encode(this.config));
+			let bool = this.parse();
 			saved = true;
+			if (!bool) saved = false;
 		} catch (err) {
 			saved = false;
 		}
