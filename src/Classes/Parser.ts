@@ -45,11 +45,16 @@ export class Parser implements IParser {
 		return parsed;
 	}
 
-	public setOption(key: string, propriety: string, value: any): boolean {
-		if (!Object.keys(this.config).includes(key)) {
-			this.config[key] = {};
+	public setOption(env: string, propriety: string, value: any): boolean {
+		if (!Object.keys(this.config).includes(env)) {
+			this.config[env] = {};
 		}
-		this.config[key][propriety] = ini.safe(value);
+		this.config[env][propriety] = ini.safe(value);
+		return this.saveConfig();
+	}
+
+	public deleteOption(env: string, propriety: string): boolean {
+		delete this.config[env][propriety];
 		return this.saveConfig();
 	}
 

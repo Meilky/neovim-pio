@@ -4,7 +4,7 @@ import { Parser } from "./Classes/Parser";
 import { RunMonitor } from "./Commands/RunMonitor";
 
 import { Application } from "./Menus/Npio";
-import { SetMenu } from "./Menus/SetMenu";
+import { Setings } from "./Menus/SetMenu";
 
 const path = process.argv[2];
 const filename = process.argv[3];
@@ -58,6 +58,6 @@ if (!parser.parse()) {
 const App = new Application({ rl: rl, parser: parser });
 
 App.addOption(new RunMonitor(App, parser));
-App.addOption(new SetMenu(App, rl, parser));
+App.addOption(new Setings(App, rl, parser));
 
 App.onLoad(opts, "main");

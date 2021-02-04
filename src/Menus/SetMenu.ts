@@ -5,7 +5,7 @@ import { Command } from "../Classes/Command";
 import Colors from "../Classes/Colors";
 import { Parser } from "../Classes/Parser";
 
-export class SetMenu extends Menu {
+export class Setings extends Menu {
 	constructor(parent: Menu | Application, rl: readline.Interface, parser: Parser) {
 		super({
 			title: "Set menu",
@@ -20,6 +20,7 @@ export class SetMenu extends Menu {
 		this.addOption(new SetCurrentEnv(this, rl, parser));
 		this.addOption(new PrintOptions(this, parser));
 		this.addOption(new SetOption(this, parser, rl));
+		this.addOption(new DeleteOption(this, parser, rl));
 	}
 
 	public onSuccess(opts: number[], msg: string) {
@@ -30,7 +31,7 @@ export class SetMenu extends Menu {
 }
 
 class PrintEnvs extends Command {
-	constructor(parent: SetMenu, parser: Parser) {
+	constructor(parent: Setings, parser: Parser) {
 		super({
 			name: "print envs",
 			description: "print all possible env of your config file",
@@ -60,7 +61,7 @@ class PrintEnvs extends Command {
 class SetCurrentEnv extends Command {
 	protected rl: readline.Interface;
 
-	constructor(parent: SetMenu, rl: readline.Interface, parser: Parser) {
+	constructor(parent: Setings, rl: readline.Interface, parser: Parser) {
 		super({
 			name: "set current env",
 			description: "set the env to use",
@@ -92,7 +93,7 @@ class SetCurrentEnv extends Command {
 }
 
 class PrintOptions extends Command {
-	constructor(parent: Menu | Application, parser: Parser) {
+	constructor(parent: Setings, parser: Parser) {
 		super({
 			name: "print options",
 			description: "print current option for current env",
@@ -125,7 +126,7 @@ class PrintOptions extends Command {
 class SetOption extends Command {
 	protected rl: readline.Interface;
 
-	constructor(parent: SetMenu, parser: Parser, rl: readline.Interface) {
+	constructor(parent: Setings, parser: Parser, rl: readline.Interface) {
 		super({
 			name: "set option",
 			description: "set the value of a given option",
@@ -160,6 +161,36 @@ class SetOption extends Command {
 					);
 				}
 			});
+		});
+	}
+}
+
+class DeleteOption extends Command {
+	protected rl: readline.Interface;
+
+	constructor(parent: Setings, parser: Parser, rl: readline.Interface) {
+		super({
+			name: "delete option",
+			description: "delete the given option",
+			parent: parent,
+			parser: parser,
+		});
+		this.rl = rl;
+	}
+
+	public onLoad(opts: number[]) {
+		let config = this.parser.getConfig();
+		let currentEnv = config.npio.currentEnv;
+
+		this.rl.question("Option name : ", (answer) => {
+			let bool = this.parser.deleteOption(currentEnv, answer);
+			if (bool) {
+				this.parent.onSuccess(opts, answer + " as been delete");
+			} else {
+				this.parent.onError(
+					new Error("Failed to delete option" + answer + " in this env " + currentEnv),
+				);
+			}
 		});
 	}
 }
