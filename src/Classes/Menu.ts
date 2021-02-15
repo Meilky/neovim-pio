@@ -98,3 +98,32 @@ export abstract class Menu implements IMenu {
 		}
 	}
 }
+
+import tty from "tty";
+
+abstract class newMenu {
+	protected rl: readline.Interface;
+
+	constructor() {
+		this.rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+	}
+
+	protected onKeyPress(): boolean {
+		process.stdout.fd;
+		return true;
+	}
+
+	protected onSelect(opt: number): boolean {
+		return true;
+	}
+
+	public error(error: Error): boolean {
+		return true;
+	}
+
+	public load(opts: number[]): boolean {
+		return true;
+	}
+
+	abstract onLoad(): boolean;
+}
